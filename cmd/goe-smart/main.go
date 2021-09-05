@@ -1,15 +1,33 @@
 package main
 
 import (
-	"stefan-benten.de/goe-smart/pkg/client"
-	"stefan-benten.de/goe-smart/pkg/webserver"
+	"log"
+	"os"
+
+	"stefan-benten.de/goe-smart/pkg/handler"
 )
 
 func main() {
-	srv, _ := webserver.NewServer()
+	mqttHost := os.Getenv("MQTT_HOST")
+	goeSerial := os.Getenv("GOE_SERIAL")
 
-	client.NewPowerFoxClient()
-	client.NewMQTTClient()
+	user := os.Getenv("PF_USER")
+	pass := os.Getenv("PF_PASS")
 
-	srv.Run()
+	config := handler.Config{
+		MQTTAddress: mqttHost,
+		GoESerial:   goeSerial,
+		PfxUsername: user,
+		PfxPassword: pass,
+		WebAddress:  ":8080",
+	}
+
+	hdl, err := handler.NewHandler(config)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = hdl.Start()
+	if err != nil {
+		log.Fatalln()
+	}
 }

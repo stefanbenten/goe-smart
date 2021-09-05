@@ -10,19 +10,18 @@ import (
 )
 
 type Server struct {
-	String string
-	Port   string
-	Router *mux.Router
+	Address string
+	Router  *mux.Router
 }
 
-func NewServer() (server Server, err error) {
+func NewServer(addr string) (server Server, err error) {
 
 	srv := Server{}
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", srv.handleRoot)
 
-	return Server{Router: router}, nil
+	return Server{Router: router, Address: addr}, nil
 }
 
 func (s *Server) renderTemplate(w http.ResponseWriter, data interface{}) (err error) {
@@ -44,5 +43,5 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) Run() {
-	_ = http.ListenAndServe(":8080", s.Router)
+	_ = http.ListenAndServe(s.Address, s.Router)
 }

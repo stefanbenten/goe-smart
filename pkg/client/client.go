@@ -20,10 +20,33 @@ type PowerFoxStatus struct {
 }
 
 type ChargerStatus struct {
-	CarStatus   int `json:"car"`
-	Amperage    int `json:"amp"`
-	Allowed     int `json:"alw"`
-	Temperature int `json:"tmp"`
+	CarStatus   int8  `json:"car,string"`
+	Amperage    int8  `json:"amp,string"`
+	Allowed     int8  `json:"alw,string"`
+	Temperature int8  `json:"tmp,string"`
+	ChargedKWh  int64 `json:"dws,string"`
+	TotalKWh    int64 `json:"eto,string"`
+	Serial      int   `json:"sse,string"`
+	Stats       Stats `json:"nrg,string"`
+}
+
+type Stats struct {
+	L1Volt  int
+	L2Volt  int
+	L3Volt  int
+	NVolt   int
+	L1Amp   int
+	L2Amp   int
+	L3Amp   int
+	L1Load  int
+	L2Load  int
+	L3Load  int
+	NLoad   int
+	SumLoad int
+	L1Pct   int
+	L2Pct   int
+	L3Pct   int
+	NPct    int
 }
 
 const (

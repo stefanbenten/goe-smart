@@ -14,9 +14,9 @@ type Config struct {
 }
 
 type Handler struct {
-	Web  *webserver.Server
-	Pfx  *client.PowerFoxClient
-	mqtt *client.MQTTClient
+	Web      *webserver.Server
+	PowerFox *client.PowerFoxClient
+	Charger  *client.MQTTClient
 }
 
 func NewHandler(config Config) (Handler, error) {
@@ -34,7 +34,8 @@ func NewHandler(config Config) (Handler, error) {
 }
 
 func (hdl *Handler) Start() (err error) {
-	hdl.mqtt.Sub()
+	hdl.PowerFox.Sub()
+	hdl.Charger.Sub()
 	hdl.Web.Run()
 	return
 }

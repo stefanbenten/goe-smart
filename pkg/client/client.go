@@ -11,44 +11,6 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-type PowerFoxStatus struct {
-	Outdated  bool    `json:"Outdated"`
-	Timestamp int64   `json:"Timestamp"`
-	Watt      float64 `json:"Watt"`
-	WattIn    float64 `json:"A_Plus"`
-	WattOut   float64 `json:"A_Minus"`
-}
-
-type ChargerStatus struct {
-	CarStatus   int8  `json:"car,string"`
-	Amperage    int8  `json:"amp,string"`
-	Allowed     int8  `json:"alw,string"`
-	Temperature int8  `json:"tmp,string"`
-	ChargedKWh  int64 `json:"dws,string"`
-	TotalKWh    int64 `json:"eto,string"`
-	Serial      int   `json:"sse,string"`
-	Stats       Stats `json:"nrg,string"`
-}
-
-type Stats struct {
-	L1Volt  int
-	L2Volt  int
-	L3Volt  int
-	NVolt   int
-	L1Amp   int
-	L2Amp   int
-	L3Amp   int
-	L1Load  int
-	L2Load  int
-	L3Load  int
-	NLoad   int
-	SumLoad int
-	L1Pct   int
-	L2Pct   int
-	L3Pct   int
-	NPct    int
-}
-
 const (
 	powerFoxUrl  = "https://backend.powerfox.energy/api/2.0/my/main/current?unit=kwh"
 	pollInterval = 30 * time.Second

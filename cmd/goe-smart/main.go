@@ -31,9 +31,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	web, err := webserver.NewServer(":8080")
+	web, err := webserver.NewServer(":8080", &hdl)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	web.Run(&hdl.Data)
+	web.Run()
 }

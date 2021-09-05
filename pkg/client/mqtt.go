@@ -32,6 +32,11 @@ func (cl *MQTTClient) Sub(status *ChargerStatus) {
 	cl.client.Subscribe("go-eCharger/"+cl.goeSerial+"/status", 0, cl.mqttStatusHandler)
 }
 
+func (cl *MQTTClient) Pub(attr string, value int) {
+	token := cl.client.Publish("go-eCharger/"+cl.goeSerial+"/cmd/req", 0, true, fmt.Sprintf(`"%s"="%d"`, attr, value))
+	token.WaitTimeout(2 * time.Second)
+}
+
 func (cl *MQTTClient) mqttStatusHandler(_ mqtt.Client, message mqtt.Message) {
 	var stats ChargerStats
 	err := json.Unmarshal(message.Payload(), &stats)

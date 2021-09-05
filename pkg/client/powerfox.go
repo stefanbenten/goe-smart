@@ -11,7 +11,7 @@ import (
 
 const (
 	powerFoxUrl  = "https://backend.powerfox.energy/api/2.0/my/main/current?unit=kwh"
-	pollInterval = 30 * time.Second
+	pollInterval = 10 * time.Second
 )
 
 type PowerFoxClient struct {

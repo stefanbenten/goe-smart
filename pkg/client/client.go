@@ -19,8 +19,16 @@ type PowerFoxStatus struct {
 	WattOut   float64 `json:"A_Minus"`
 }
 
+type ChargerStatus struct {
+	CarStatus   int `json:"car"`
+	Amperage    int `json:"amp"`
+	Allowed     int `json:"alw"`
+	Temperature int `json:"tmp"`
+}
+
 const (
-	powerFoxUrl = "https://backend.powerfox.energy/api/2.0/my/main/current?unit=kwh"
+	powerFoxUrl  = "https://backend.powerfox.energy/api/2.0/my/main/current?unit=kwh"
+	pollInterval = 30 * time.Second
 )
 
 func NewPowerFoxClient() {
@@ -39,23 +47,31 @@ func NewPowerFoxClient() {
 	req.SetBasicAuth(user, pass)
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	defer resp.Body.Close()
+	timer := time.NewTimer(pollInterval)
 
-	data, err := io.ReadAll(resp.Body)
+	go func() {
+		<-timer.C
 
-	err = json.Unmarshal(data, &powerFoxData)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		defer resp.Body.Close()
 
-	fmt.Println(powerFoxData)
+		data, err := io.ReadAll(resp.Body)
 
+		err = json.Unmarshal(data, &powerFoxData)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		fmt.Println(powerFoxData)
+	}()
+}
+
+func NewMQTTClient() {
 	mqttHost := os.Getenv("MQTT_HOST")
 	goeSerial := os.Getenv("GOE_SERIAL")
 
@@ -66,9 +82,15 @@ func NewPowerFoxClient() {
 	token := mqttClient.Connect()
 	token.WaitTimeout(5 * time.Second)
 
-	mqttClient.Subscribe("go-eCharger/"+goeSerial+"/cmd/req", 0, mqttHandler)
+	mqttClient.Subscribe("go-eCharger/"+goeSerial+"/status", 0, mqttStatusHandler)
 }
 
-func mqttHandler(client mqtt.Client, message mqtt.Message) {
-	fmt.Println(message.Payload())
+func mqttStatusHandler(client mqtt.Client, message mqtt.Message) {
+	var status ChargerStatus
+	err := json.Unmarshal(message.Payload(), &status)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(status)
 }

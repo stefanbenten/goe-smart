@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"stefan-benten.de/goe-smart/pkg/handler"
+	"stefan-benten.de/goe-smart/pkg/webserver"
 )
 
 func main() {
@@ -19,7 +20,6 @@ func main() {
 		GoESerial:   goeSerial,
 		PfxUsername: user,
 		PfxPassword: pass,
-		WebAddress:  ":8080",
 	}
 
 	hdl, err := handler.NewHandler(config)
@@ -28,6 +28,12 @@ func main() {
 	}
 	err = hdl.Start()
 	if err != nil {
-		log.Fatalln()
+		log.Fatalln(err)
 	}
+
+	web, err := webserver.NewServer(":8080")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	web.Run(&hdl.Data)
 }

@@ -17,14 +17,13 @@ const (
 type PowerFoxClient struct {
 	username string
 	password string
-	Status   PowerFoxStatus
 }
 
 func NewPowerFoxClient(username, password string) PowerFoxClient {
 	return PowerFoxClient{username: username, password: password}
 }
 
-func (pfx *PowerFoxClient) Sub() {
+func (pfx *PowerFoxClient) Sub(status *PowerFoxStatus) {
 	timer := time.NewTicker(pollInterval)
 	done := make(chan bool)
 
@@ -37,7 +36,7 @@ func (pfx *PowerFoxClient) Sub() {
 			case <-timer.C:
 
 				client := &http.Client{}
-				var powerFoxData = PowerFoxStatus{}
+				var powerFoxData = PowerFoxStats{}
 
 				req, err := http.NewRequest("GET", powerFoxUrl, nil)
 				if err != nil {
@@ -68,7 +67,9 @@ func (pfx *PowerFoxClient) Sub() {
 				}
 
 				log.Println(powerFoxData)
-				pfx.Status = powerFoxData
+				status.Lock.Lock()
+				status.PowerFoxStats = powerFoxData
+				status.Lock.Unlock()
 			}
 		}
 	}()

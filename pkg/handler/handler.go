@@ -2,7 +2,6 @@ package handler
 
 import (
 	"stefan-benten.de/goe-smart/pkg/client"
-	"stefan-benten.de/goe-smart/pkg/webserver"
 )
 
 type Config struct {
@@ -10,13 +9,18 @@ type Config struct {
 	GoESerial   string
 	PfxUsername string
 	PfxPassword string
-	WebAddress  string
 }
 
 type Handler struct {
-	Web      *webserver.Server
 	PowerFox *client.PowerFoxClient
 	Charger  *client.MQTTClient
+
+	Data
+}
+
+type Data struct {
+	PowerFox client.PowerFoxStatus
+	Charger  client.ChargerStatus
 }
 
 func NewHandler(config Config) (Handler, error) {
@@ -25,17 +29,12 @@ func NewHandler(config Config) (Handler, error) {
 
 	mqtt := client.NewMQTTClient(config.MQTTAddress, config.GoESerial)
 
-	web, err := webserver.NewServer(config.WebAddress)
-	if err != nil {
-		return Handler{}, err
-	}
-
-	return Handler{&web, &pfx, &mqtt}, nil
+	return Handler{&pfx, &mqtt, Data{PowerFox: client.PowerFoxStatus{}, Charger: client.ChargerStatus{}}}, nil
 }
 
 func (hdl *Handler) Start() (err error) {
-	hdl.PowerFox.Sub()
-	hdl.Charger.Sub()
-	hdl.Web.Run()
+
+	hdl.PowerFox.Sub(&hdl.Data.PowerFox)
+	hdl.Charger.Sub(&hdl.Data.Charger)
 	return
 }

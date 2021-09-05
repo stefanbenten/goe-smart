@@ -11,8 +11,8 @@ import (
 
 type MQTTClient struct {
 	client    mqtt.Client
+	status    *ChargerStatus
 	goeSerial string
-	Status    ChargerStatus
 }
 
 func NewMQTTClient(addr, goeSerial string) MQTTClient {
@@ -27,17 +27,21 @@ func NewMQTTClient(addr, goeSerial string) MQTTClient {
 	return MQTTClient{client: mqttClient, goeSerial: goeSerial}
 }
 
-func (cl *MQTTClient) Sub() {
+func (cl *MQTTClient) Sub(status *ChargerStatus) {
+	cl.status = status
 	cl.client.Subscribe("go-eCharger/"+cl.goeSerial+"/status", 0, cl.mqttStatusHandler)
 }
 
 func (cl *MQTTClient) mqttStatusHandler(_ mqtt.Client, message mqtt.Message) {
-	var status ChargerStatus
-	err := json.Unmarshal(message.Payload(), &status)
+	var stats ChargerStats
+	err := json.Unmarshal(message.Payload(), &stats)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	log.Println(status)
-	cl.Status = status
+
+	log.Println(stats)
+	cl.status.Lock.Lock()
+	cl.status.ChargerStats = stats
+	cl.status.Lock.Unlock()
 }

@@ -1,8 +1,16 @@
 package client
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"sync"
+)
 
 type PowerFoxStatus struct {
+	Lock sync.Mutex
+	PowerFoxStats
+}
+
+type PowerFoxStats struct {
 	Outdated  bool    `json:"Outdated"`
 	Timestamp int64   `json:"Timestamp"`
 	Watt      float64 `json:"Watt"`
@@ -11,6 +19,11 @@ type PowerFoxStatus struct {
 }
 
 type ChargerStatus struct {
+	Lock sync.Mutex
+	ChargerStats
+}
+
+type ChargerStats struct {
 	CarStatus   int8  `json:"car,string"`
 	Amperage    int8  `json:"amp,string"`
 	Allowed     int8  `json:"alw,string"`

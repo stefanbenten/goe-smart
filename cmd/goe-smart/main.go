@@ -9,6 +9,7 @@ func main() {
 	srv, _ := webserver.NewServer()
 
 	client.NewPowerFoxClient()
+	client.NewMQTTClient()
 
 	srv.Run()
 }

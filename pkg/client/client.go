@@ -32,25 +32,25 @@ const (
 )
 
 func NewPowerFoxClient() {
-	client := &http.Client{}
-	var powerFoxData = PowerFoxStatus{}
-
-	req, err := http.NewRequest("GET", powerFoxUrl, nil)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
 	user := os.Getenv("PF_USER")
 	pass := os.Getenv("PF_PASS")
-
-	req.SetBasicAuth(user, pass)
-	req.Header.Set("Accept", "application/json")
 
 	timer := time.NewTimer(pollInterval)
 
 	go func() {
 		<-timer.C
+
+		client := &http.Client{}
+		var powerFoxData = PowerFoxStatus{}
+
+		req, err := http.NewRequest("GET", powerFoxUrl, nil)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		req.SetBasicAuth(user, pass)
+		req.Header.Set("Accept", "application/json")
 
 		resp, err := client.Do(req)
 		if err != nil {

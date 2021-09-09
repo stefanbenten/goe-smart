@@ -29,11 +29,11 @@ func NewMQTTClient(addr, goeSerial string) MQTTClient {
 
 func (cl *MQTTClient) Sub(status *ChargerStatus) {
 	cl.status = status
-	cl.client.Subscribe("go-eCharger/"+cl.goeSerial+"/status", 0, cl.mqttStatusHandler)
+	cl.client.Subscribe(fmt.Sprintf("go-eCharger/%s/status", cl.goeSerial), 0, cl.mqttStatusHandler)
 }
 
 func (cl *MQTTClient) Pub(attr string, value int) {
-	token := cl.client.Publish("go-eCharger/"+cl.goeSerial+"/cmd/req", 0, true, fmt.Sprintf(`"%s"="%d"`, attr, value))
+	token := cl.client.Publish(fmt.Sprintf("go-eCharger/%s/cmd/req", cl.goeSerial), 0, true, fmt.Sprintf("%s=%d", attr, value))
 	token.WaitTimeout(2 * time.Second)
 }
 
@@ -45,8 +45,8 @@ func (cl *MQTTClient) mqttStatusHandler(_ mqtt.Client, message mqtt.Message) {
 		return
 	}
 
-	log.Println(stats)
 	cl.status.Lock.Lock()
 	cl.status.ChargerStats = stats
 	cl.status.Lock.Unlock()
+	log.Println(stats)
 }

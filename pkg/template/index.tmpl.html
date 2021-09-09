@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="30"/>
+    <title>Lademonitor</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md">
+                <h1>Aktuelle Daten</h1><br>
+                <h3>Powerfox Differenz: {{.PowerFox.Watt}} Watt</h3>
+                <h3>Verbindung zum Auto: {{ if eq .Charger.CarStatus 1}}nicht {{end}}verbunden</h3>
+                {{ if (gt .Charger.CarStatus 1) }}
+                <h3>Ladestrom: {{ .Charger.Amperage }}A</h3>
+                <h3>Ladeleistung: {{ .Charger.Stats.SumLoad }}</h3>
+                {{ end }}
+                <br>
+                Stand: {{ fromUnix .PowerFox.Timestamp 0 }}
+            </div>
+            <div class="col-sm">
+                <div class="row">
+                    Ladeeinstellungen:
+                </div>
+                <form action="" method="POST">
+                    <div class="form-group">
+                        <label for="ampOverride">Ladestrom in A</label>
+                        <select class="form-control" id="ampOverride" name="ampOverride">
+                            {{ range $val := Iterate 16 -2 }}
+                            <option>{{$val}}</option>
+                            {{ end }}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="phaseOverride">Anzahl Phasen</label>
+                        <select class="form-control" id="phaseOverride" name="phaseOverride">
+                            {{ range $val := Iterate 3 -1 }}
+                            <option>{{$val}}</option>
+                            {{ end }}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="loadThreshold">Leistungsminimum zum Start</label>
+                        <input class="form-control" id="loadThreshold" name="loadThreshold" value={{.Overrides.LoadThreshold}}>
+                    </div>
+                    <div class="form-group btn-group" role="group" aria-label="charging">
+                        <button type="submit" id="start" name="force" value="1" class="btn btn-success {{ if .Overrides.ForceCharge }}disabled{{end}}">Ladestart</button>
+                        <button type="submit" id="stop" name="force" value="0" class="btn btn-danger {{ if not .Overrides.ForceCharge }}disabled{{end}}">Stop</button>
+                        <button type="submit" id="update" name="update" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

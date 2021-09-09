@@ -24,10 +24,10 @@ type ChargerStatus struct {
 }
 
 type ChargerStats struct {
-	CarStatus   int8  `json:"car,string"`
-	Amperage    int8  `json:"amp,string"`
-	Allowed     int8  `json:"alw,string"`
-	Temperature int8  `json:"tmp,string"`
+	CarStatus   int   `json:"car,string"`
+	Amperage    int   `json:"amp,string"`
+	Allowed     int   `json:"alw,string"`
+	Temperature int   `json:"tmp,string"`
 	ChargedKWh  int64 `json:"dws,string"`
 	TotalKWh    int64 `json:"eto,string"`
 	Serial      int   `json:"sse,string"`

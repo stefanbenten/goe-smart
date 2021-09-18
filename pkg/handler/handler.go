@@ -92,6 +92,8 @@ func (hdl *Handler) HandleSleepState() {
 func (hdl *Handler) HandleCharging() {
 	switch hdl.Data.Charger.CarStatus {
 	case 4:
+		fallthrough
+	case 3:
 		if hdl.SleepState {
 			hdl.SleepState = false
 		}
